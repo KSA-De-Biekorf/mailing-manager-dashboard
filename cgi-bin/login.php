@@ -14,6 +14,7 @@
   <p id="errors"></p>
 
   <script src="../libs/jsencrypt.min.js"></script>
+  <script src="../libs/auth/localDB.js"></script>
   <!-- handle form -->
   <script type="text/javascript">
     // Server public key
@@ -25,8 +26,9 @@
     encrypt_server.setPublicKey(publicKey);
     let encrypt_client = new JSEncrypt({log: true});
     // client public key, base64 encoded
-    let client_pubkey = encrypt_client.getKey().getPublicKey().replaceAll("\n", ""); // UNOPTIMIZED: getKey blocking version
-    console.log(client_pubkey);
+    const client_key = encrypt_client.getKey(); // UNOPTIMIZED: getKey blocking version
+    const client_pubkey = client_key.getPublicKey().replaceAll("\n", ""); 
+    const client_privkey = client_key.getPrivateKey().replaceAll("\n", "");
 
     class ErrorHandler {
       constructor() {
@@ -87,7 +89,10 @@
         console.log("userID", userID);
         if (userID == "" || userID == null) {
           errHandler.addError("(server error) invalid user id.<br/>Contacteer de server admin");
+          return;
         }
+
+        db__set_auth(cient_privkey, client_pubkey, token, userID, errHandler.addError);
       });
     });
 
