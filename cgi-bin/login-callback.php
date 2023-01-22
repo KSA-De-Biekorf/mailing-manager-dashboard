@@ -2,7 +2,10 @@
 
 require_once("../../mailing-manager/rsa.php");
 require_once("../../mailing-manager/auth.php");
-// TODO: require_once("../../mailing-manager/PersonDBLib/connect.php");
+require_once("../../mailing-manager/PersonDBLib/connect.php");
+
+$auth = $GLOBALS["AUTH"];
+$session_keypair = $GLOBALS["SESSION_KEYPAIR"];
 
 http_response_code(500); // if anything unexpected happens
 
@@ -16,15 +19,14 @@ $userd = json_decode($decrypted, false);
 $client_pubkey = $_SERVER["HTTP_PUBKEY"];
 
 # Connect to database
-// TODO: $conn = new_connection();
-$conn = null;
+$conn = new_connection();
 
 if ($auth->authenticate($userd->user, $userd->pass)) {
   http_response_code(200);
   $data = $auth->new_token($conn, $userd, $client_pubkey);
   $token = $data->token; // is base64 encoded
   header("auth-token: $token");
-  $userID = $data->userId;
+  $userID = $data->userID;
   header("user-id: $userID");
 } else {
   $code = 500;
