@@ -93,9 +93,13 @@
           return;
         }
 				
+				// store keys
 				let db = db__init();
 				console.log(db);
         db__set_auth(db, client_privkey, client_pubkey, token, userID, errHandler.addError.bind(errHandler));
+				
+				// go to dashboard
+
       });
     });
 
