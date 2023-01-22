@@ -1,5 +1,5 @@
 // only use whole numbers!
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 function db__set_auth(privkey, pubkey, token, userID, errHandle) {
   const request = window.indexedDB.open("auth", DB_VERSION);
@@ -18,7 +18,7 @@ function db__set_auth(privkey, pubkey, token, userID, errHandle) {
   request.onupgradeneeded = (e) => {
     const db = e.target.result;
 
-    const objStore = db.createObjectStore("auth", { keypath: "auth"});
+    const objStore = db.createObjectStore("auth", { keypath: "auth", autoIncrement: true });
     objStore.createIndex("pubkey", "pubkey", { unique: true });
     objStore.createIndex("privkey", "privkey", { unique: true });
     objStore.createIndex("token", "token", { unique: true });
