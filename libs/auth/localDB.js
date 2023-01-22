@@ -1,7 +1,7 @@
 // only use whole numbers!
 const DB_VERSION = 1;
 
-export function db__set_auth(privkey, pubkey, token, userID, errHandle) {
+function db__set_auth(privkey, pubkey, token, userID, errHandle) {
   const request = window.indexedDB.open("auth", DB_VERSION);
   request.onerror = (e) => {
     console.error(e);

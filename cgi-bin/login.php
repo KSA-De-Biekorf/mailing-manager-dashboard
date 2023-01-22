@@ -18,7 +18,7 @@
   <!-- handle form -->
   <script type="text/javascript">
     // Server public key
-    const base64PublicKey = "<?php require_once("../../mailing-manager/rsa.php"); echo base64_encode($session_keypair->public_key_pem); ?>";
+    const base64PublicKey = "<?php require_once("../../mailing-manager/rsa.php"); $session_keypair = $GLOBALS["SESSION_KEYPAIR"]; echo base64_encode($session_keypair->public_key_pem); ?>";
     const publicKey = atob(base64PublicKey);
 
     // init encryption
@@ -79,7 +79,7 @@
         if (status != 200) {
           console.error(statusText);
           console.error(resp.headers.get("reason"));
-          errHandler.addError(resp.headers.get("reason"));
+          errHandler.addError(resp.headers.get("reason") || "unknown error.<br/>Contacteer de server admin.");
           return;
         }
 
@@ -92,7 +92,7 @@
           return;
         }
 
-        db__set_auth(cient_privkey, client_pubkey, token, userID, errHandler.addError);
+        db__set_auth(client_privkey, client_pubkey, token, userID, errHandler.addError);
       });
     });
 
