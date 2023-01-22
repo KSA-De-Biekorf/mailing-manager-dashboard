@@ -92,7 +92,7 @@
           return;
         }
 
-        db__set_auth(client_privkey, client_pubkey, token, userID, errHandler.addError);
+        db__set_auth(client_privkey, client_pubkey, token, userID, errHandler.addError.bind(errHandler));
       });
     });
 
