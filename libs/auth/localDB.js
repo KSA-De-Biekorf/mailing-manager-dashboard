@@ -1,16 +1,20 @@
 // only use whole numbers!
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
-var db = new Dexie("auth")
-db.version(DB_VERSION).stores({
-  keys: `
-    pubkey,
-    privkey,
-    token,
-    id`,
-});
+// Database can be removed with: indexedDB.deleteDatabase('auth').onsuccess=(function(e){console.log("Delete OK");})
+function db__init() {
+	var db = new Dexie("auth");
+	db.version(DB_VERSION).stores({
+    keys: `
+			id,
+      pubkey,
+      privkey,
+      token`,
+	});
+	return db;
+}
 
-function db__set_auth(privkey, pubkey, token, userID, errHandle) {
+function db__set_auth(db, privkey, pubkey, token, userID, errHandle) {
   if ("indexedDB" in window) {
     console.debug("IndexedDB supported");
   } else {
@@ -18,7 +22,7 @@ function db__set_auth(privkey, pubkey, token, userID, errHandle) {
     errHandle("Deze browser wordt niet ondersteund");
   }
   
-  db.auth.put({
+  db.keys.put({
     id: userID,
     pubkey: pubkey,
     privkey: privkey,
@@ -30,8 +34,8 @@ function db__set_auth(privkey, pubkey, token, userID, errHandle) {
   });
 }
 
-function db__clear(errHandle) {
-  db.auth.clear()
+function db__clear(db, errHandle) {
+  db.keys.clear()
     .then(() => {
       console.info("auth database cleared");
     }).catch((err) => {

@@ -14,6 +14,7 @@
   <p id="errors"></p>
 
   <script src="../libs/jsencrypt.min.js"></script>
+	<script src="https://unpkg.com/dexie/dist/dexie.js"></script>
   <script src="../libs/auth/localDB.js"></script>
   <!-- handle form -->
   <script type="text/javascript">
@@ -91,8 +92,10 @@
           errHandler.addError("(server error) invalid user id.<br/>Contacteer de server admin");
           return;
         }
-
-        db__set_auth(client_privkey, client_pubkey, token, userID, errHandler.addError.bind(errHandler));
+				
+				let db = db__init();
+				console.log(db);
+        db__set_auth(db, client_privkey, client_pubkey, token, userID, errHandler.addError.bind(errHandler));
       });
     });
 
