@@ -9,6 +9,7 @@
 		require_once("../../mailing-manager/PersonDBLib/auth/queries.php");
 		require_once("../../mailing-manager/PersonDBLib/connect.php");
 		require_once("../../mailing-manager/url_safe.php");
+		require_once("../../mailing-manager/auth.php");
 
 		$conn = new_connection();
 
@@ -20,35 +21,42 @@
 			$signature64 = url_safe_to_base64($_GET["signature"]);
 			$signature = base64_decode($signature64);
 			$userID = $_GET["userid"];
+
+			try {
+				$is_authenticated = verify_request($conn, $token, $signature, $userID);
+			} catch (Exception $e) {
+				http_response_code($e->getCode());
+				die($e->getMessage());
+			}
 			
 			# retrieve token entry from DB
-			$token_entries = query_token($conn, $userID);
-			if (!$token_entries) {
-				http_response_code(401);
-				# TODO: handle
-				die("User is unauthorized, no valid entries found");
-			}
-			$token_entry = $token_entries->fetch_assoc();
-			$token = $token_entry["token"];
-			$public_key_pem = base64_decode($token_entry["public_key"]); # is base64 encoded in database
-			$public_key = openssl_get_publickey($public_key_pem);
-			if (!$public_key) {
-				http_response_code(400);
-				error_log(openssl_error_string());
-				die("invalid public key");
-			}
+			// $token_entries = query_token($conn, $userID);
+			// if (!$token_entries) {
+			// 	http_response_code(401);
+			// 	# TODO: handle
+			// 	die("User is unauthorized, no valid entries found");
+			// }
+			// $token_entry = $token_entries->fetch_assoc();
+			// $token = $token_entry["token"];
+			// $public_key_pem = base64_decode($token_entry["public_key"]); # is base64 encoded in database
+			// $public_key = openssl_get_publickey($public_key_pem);
+			// if (!$public_key) {
+			// 	http_response_code(400);
+			// 	error_log(openssl_error_string());
+			// 	die("invalid public key");
+			// }
 
-			#$array=openssl_pkey_get_details($public_key);
+			// #$array=openssl_pkey_get_details($public_key);
 			
-			$is_verified = openssl_verify($token, $signature, $public_key_pem, "sha256");
-			if (!$is_verified) {
-				http_response_code(401);
-				die("User is unauthorized<br/><a href='https://email.ksadebiekorf.be/cgi-bin/login.php'>Opnieuw inloggen</a>");
-			}
+			// $is_verified = openssl_verify($token, $signature, $public_key_pem, "sha256");
+			// if (!$is_verified) {
+			// 	http_response_code(401);
+			// 	die("User is unauthorized<br/><a href='https://email.ksadebiekorf.be/cgi-bin/login.php'>Opnieuw inloggen</a>");
+			// }
 
-			$is_authenticated = true;
+			// $is_authenticated = true;
 
-			echo "User logged in!";
+			// echo "User logged in!";
 		}
 	?>
 
