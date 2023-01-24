@@ -74,8 +74,7 @@
 
 	<main id="<?php echo $page; ?>">
 		<?php
-			require_once("../../mailing-manager/pages/$page.php");
-			print_page();
+			require("../../mailing-manager/pages/$page.php");
 		?>
 	</main>
 
