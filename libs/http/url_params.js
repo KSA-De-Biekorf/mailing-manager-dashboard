@@ -1,7 +1,9 @@
 function set_param(url_str, param_c, val_c) {
+	console.log(url_str);
 	const url = new URL(url_str);
 	let new_url = "";
 	new_url += url.protocol;
+	new_url += "//";
 	new_url += url.hostname;
 	new_url += url.pathname;
 	let paramIdx = 0;

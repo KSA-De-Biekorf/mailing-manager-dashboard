@@ -12,6 +12,7 @@
 		require_once("../../mailing-manager/auth.php");
 
 		$conn = new_connection();
+		$auth = $GLOBALS["AUTH"];
 
 		$is_authenticated = false;
 		
@@ -23,7 +24,7 @@
 			$userID = $_GET["userid"];
 
 			try {
-				$is_authenticated = verify_request($conn, $token, $signature, $userID);
+				$is_authenticated = $auth->verify_request($conn, $token, $signature, $userID);
 			} catch (Exception $e) {
 				http_response_code($e->getCode());
 				die($e->getMessage());
@@ -71,17 +72,41 @@
 	<script src="../libs/http/url_params.js"></script>
 	<div class="horizontal-menu-bar">
 		<ul>
-			<li><a id="db_viewer">db viewer</a></li>
-			<li><a id="accout">account</a></li>
+			<?php
+				$nav_items = ["db_viewer", "account"];
+				foreach ($nav_items as $item) {
+					echo "<li>";
+					echo "<a id='nav-$item'>$item</a>";
+					echo "</li>";
+				}
+			?>
 		</ul>
 	</div>
 
 	<script>
-	const db_viewer_a = document.querySelector("#db_viewer");
-	db_viewer_a.href = set_param(window.href, 'nav', 'db_viewer');
-	const account_a = document.querySelector("#account");
-	db_viewer_a.href = set_param(window.href, 'nav', 'account');
+		<?php
+		foreach ($nav_items as $item) {
+			echo "const nav_$item = document.querySelector('#nav-$item');";
+			echo "nav_$item.href = set_param(new URL(window.location.href), 'nav', '$item');";
+		}
+		?>
 	</script>
+
+	<?php
+		$page = null;
+		if (isset($_GET["nav"])) {
+			$page = $_GET["nav"];
+		} else {
+			$page = "db_viewer";
+		}
+	?>
+
+	<main id="<?php echo $page; ?>">
+		<?php
+			require_once("../../mailing-manager/pages/$page.php");
+			print_page();
+		?>
+	</main>
 
 	<script>
 		const authenticated = <?php echo($is_authenticated); ?>
