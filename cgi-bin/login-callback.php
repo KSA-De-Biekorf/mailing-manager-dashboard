@@ -3,6 +3,7 @@
 require_once("../../mailing-manager/rsa.php");
 require_once("../../mailing-manager/auth.php");
 require_once("../../mailing-manager/PersonDBLib/connect.php");
+require_once("../../mailing-manager/url_safe.php");
 
 $auth = $GLOBALS["AUTH"];
 $session_keypair = $GLOBALS["SESSION_KEYPAIR"];
@@ -16,7 +17,7 @@ $decrypted = $session_keypair->decrypt($authBase64);
 $userd = json_decode($decrypted, false);
 
 # Client public key
-$client_pubkey = $_SERVER["HTTP_PUBKEY"];
+$client_pubkey = url_safe_to_base64($_SERVER["HTTP_PUBKEY"]); # base64 encoded
 
 # Connect to database
 $conn = new_connection();

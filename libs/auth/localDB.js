@@ -34,6 +34,12 @@ function db__set_auth(db, privkey, pubkey, token, userID, errHandle) {
   });
 }
 
+function db__get_keys(db, cb) {
+	db.keys.limit(1).toArray().then((keys) => {
+		cb(keys[0]);
+	});
+}
+
 function db__clear(db, errHandle) {
   db.keys.clear()
     .then(() => {

@@ -16,6 +16,10 @@
   <script src="../libs/jsencrypt.min.js"></script>
 	<script src="https://unpkg.com/dexie/dist/dexie.js"></script>
   <script src="../libs/auth/localDB.js"></script>
+	<script src="../libs/cryptojs/core.js"></script>
+	<script src="../libs/cryptojs/cipher-core.js"></script>
+	<script src="../libs/cryptojs/sha256.js"></script>
+	<script src="../libs/http/url_safe_param.js"></script>
   <!-- handle form -->
   <script type="text/javascript">
     // Server public key
@@ -28,8 +32,8 @@
     let encrypt_client = new JSEncrypt({log: true});
     // client public key, base64 encoded
     const client_key = encrypt_client.getKey(); // UNOPTIMIZED: getKey blocking version
-    const client_pubkey = client_key.getPublicKey().replaceAll("\n", ""); 
-    const client_privkey = client_key.getPrivateKey().replaceAll("\n", "");
+    const client_pubkey = client_key.getPublicKey();
+    const client_privkey = client_key.getPrivateKey();
 
     class ErrorHandler {
       constructor() {
@@ -49,6 +53,8 @@
 
     // login
     const form = document.querySelector("#login-form");
+
+		console.debug("Ready to log in");
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -70,7 +76,7 @@
         method: "POST",
         headers: {
           "auth": encryptedBase64,
-          "pubkey": client_pubkey,
+          "pubkey": base64_to_url_safe(btoa(client_pubkey)),
         },
       }).then(resp => {
         console.log(resp);
@@ -96,10 +102,15 @@
 				// store keys
 				let db = db__init();
 				console.log(db);
+				db__clear(db);
         db__set_auth(db, client_privkey, client_pubkey, token, userID, errHandler.addError.bind(errHandler));
 				
 				// go to dashboard
-
+				const signature = encrypt_client.sign(token, CryptoJS.SHA256, "sha256");
+				const safe_sign = base64_to_url_safe(signature);
+				const safe_token = base64_to_url_safe(token);
+				console.debug(safe_sign, safe_token);
+				window.location.href = `https://email.ksadebiekorf.be/cgi-bin/dashboard.php?token=${safe_token}&signature=${safe_sign}&userid=${userID}`;
       });
     });
 
